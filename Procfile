@@ -1,1 +1,1 @@
-web: ./tg-piercing-game
+web: ./niple
