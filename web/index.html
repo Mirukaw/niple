@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Пирсинг или нет?</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { margin:0; padding:0; background:#111; color:#fff; font-family:Arial, sans-serif; text-align:center; overflow:hidden; }
+        h1 { margin:10px; }
+        #timer { font-size:48px; font-weight:bold; color:#ff4444; }
+        img { max-width:95%; max-height:55vh; margin:10px auto; border:4px solid #fff; border-radius:8px; }
+        button { 
+            padding:25px 40px; margin:10px; font-size:28px; border:none; border-radius:12px; 
+            width:80%; max-width:300px;
+        }
+        .yes { background:#4CAF50; }
+        .no { background:#f44336; }
+        #score { font-size:24px; margin:10px; }
+    </style>
+</head>
+<body>
+    <h1>🔞 Пирсинг или нет?</h1>
+    <p id="timer">60</p>
+    <div id="score">Счёт: 0</div>
+    <img id="image" src="https://via.placeholder.com/600x800?text=Загрузка...">
+    <br><br>
+    <button class="yes" onclick="choose(true)">С пирсингом ✅</button>
+    <button class="no" onclick="choose(false)">Без пирсинга ❌</button>
+
+    <script>
+    let score = 0;
+    let timeLeft = 60;
+    let current = 0;
+    let timer;
+    let shuffledImages = [];
+
+    // ==================== ТВОИ КАРТИНКИ ====================
+    const images = [
+        {url: "https://i.ibb.co/9KvgGSH/nopierce1.jpg", piercing: false},
+        {url: "https://i.ibb.co/39xBzZtY/nopierce2.jpg", piercing: false},
+        {url: "https://i.ibb.co/7tNLkFJ0/nopierce3.jpg", piercing: false},
+        {url: "https://i.ibb.co/ksmFP47P/nopierce4.jpg", piercing: false},
+        {url: "https://i.ibb.co/nNFLjHfK/nopierce5.jpg", piercing: false},
+        {url: "https://i.ibb.co/xKmTxrTb/nopierce6.jpg", piercing: false},
+        {url: "https://i.ibb.co/39rRhd6R/nopierce7.jpg", piercing: false},
+        {url: "https://i.ibb.co/BHTkTzky/nopierce8.jpg", piercing: false},
+        {url: "https://i.ibb.co/SDCvSJ6P/nopierce9.jpg", piercing: false},
+        {url: "https://i.ibb.co/mC24Mccm/nopierce10.jpg", piercing: false},
+        {url: "https://i.ibb.co/8gp30dKm/pierce1.jpg", piercing: true},
+        {url: "https://i.ibb.co/q3yZV4fC/pierce2.jpg", piercing: true},
+        {url: "https://i.ibb.co/VYd9Vtkd/pierce3.jpg", piercing: true},
+        {url: "https://i.ibb.co/rfLPpbwD/pierce4.jpg", piercing: true},
+        {url: "https://i.ibb.co/35tvfVKM/pierce5.jpg", piercing: true},
+        {url: "https://i.ibb.co/fzjdF9h3/pierce6.jpg", piercing: true},
+        {url: "https://i.ibb.co/qMMbRcc6/pierce7.jpg", piercing: true},
+        {url: "https://i.ibb.co/tTYjN9nB/pierce8.jpg", piercing: true},
+        {url: "https://i.ibb.co/3yrhZDWs/pierce9.jpg", piercing: true},
+        {url: "https://i.ibb.co/P0bWhcm/pierce10.jpg", piercing: true}
+    ];
+    // =======================================================
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function startGame() {
+        shuffledImages = [...images];
+        shuffle(shuffledImages);
+        
+        current = 0;
+        score = 0;
+        timeLeft = 60;
+        updateScore();
+        nextImage();
+        
+        timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').textContent = timeLeft;
+            if (timeLeft <= 0) endGame();
+        }, 1000);
+    }
+
+    function nextImage() {
+        if (current >= shuffledImages.length || timeLeft <= 0) {
+            endGame();
+            return;
+        }
+        document.getElementById('image').src = shuffledImages[current].url;
+    }
+
+    window.choose = function(choice) {
+        if (choice === shuffledImages[current].piercing) {
+            score++;
+        }
+        updateScore();
+        current++;
+        nextImage();
+    }
+
+    function updateScore() {
+        document.getElementById('score').textContent = `Счёт: ${score}`;
+    }
+
+    function endGame() {
+        clearInterval(timer);
+        const user = window.Telegram.WebApp.initDataUnsafe.user || {id: 0, username: "player"};
+        
+        fetch('/submit-score', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                user_id: user.id,
+                username: user.username || "anon",
+                score: score
+            })
+        }).catch(console.error);
+
+        alert(`⏰ Время вышло!\n\nТвой результат: ${score} правильных ответов`);
+        window.Telegram.WebApp.close();
+    }
+
+    // Запуск игры
+    window.Telegram.WebApp.ready();
+    startGame();
+</script>
+</body>
+</html>
