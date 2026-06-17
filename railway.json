@@ -1,7 +1,4 @@
 {
-  "buildCommand": "go build -o app .",
-  "startCommand": "./app",
-  "deploy": {
-    "startCommand": "./app"
-  }
+  "buildCommand": "go build -o app main.go",
+  "startCommand": "./app"
 }
