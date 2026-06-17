@@ -1,0 +1,1 @@
+web: ./tg-piercing-game
