@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 {
   "buildCommand": "go build -o app .",
   "startCommand": "./app"
 }
+=======
+{
+  "buildCommand": "go build -o app main.go",
+  "startCommand": "./app"
+}
+>>>>>>> dd64d87b1d055da4e835b6c29c84c8165983f487
